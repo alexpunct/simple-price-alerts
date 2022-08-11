@@ -4,8 +4,6 @@
 
 <h2 align="center">Features</h2>
 
-<div align="center">
-
 - general
   - email/password authentication
   - update profile details
@@ -15,8 +13,6 @@
   - add email for price alerts
 - Logged in user
   - add/edit products
-
-</div>
 
 
 <h2 align="center">Guide</h2>
