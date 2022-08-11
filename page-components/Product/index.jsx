@@ -1,11 +1,10 @@
 import { Spacer, Wrapper } from '@/components/Layout';
 import { Post as PostItem } from '@/components/Post';
-import Commenter from './Commenter';
-import CommentList from './CommentList';
+import PriceAlertForm from './PriceAlertForm';
 import Link from 'next/link';
 import styles from './UserPost.module.css';
 
-export const UserPost = ({ post }) => {
+export const Product = ({ post }) => {
   return (
     <Wrapper>
       <Spacer size={2} axis="vertical" />
@@ -15,9 +14,8 @@ export const UserPost = ({ post }) => {
         </Link>
       </div>
       <PostItem post={post} />
-      <h3 className={styles.subtitle}>Comments</h3>
-      <Commenter post={post} />
-      <CommentList post={post} />
+      <PriceAlertForm post={post} />
+      <Spacer size={2} axis="vertical" />
     </Wrapper>
   );
 };

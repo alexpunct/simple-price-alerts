@@ -1,6 +1,6 @@
 import { ValidateProps } from '@/api-lib/constants';
-import { findPosts, insertPost } from '@/api-lib/db';
-import { auths, validateBody } from '@/api-lib/middlewares';
+import { findPostById, findPosts, insertPost, updatePost } from '@/api-lib/db';
+import { auths, validateBody, sendPriceAlerts } from '@/api-lib/middlewares';
 import { getMongoDb } from '@/api-lib/mongodb';
 import { ncOpts } from '@/api-lib/nc';
 import nc from 'next-connect';
@@ -25,9 +25,10 @@ handler.post(
   validateBody({
     type: 'object',
     properties: {
-      content: ValidateProps.post.content,
+      name: ValidateProps.post.name,
+      price: ValidateProps.post.price,
     },
-    required: ['content'],
+    required: ['name', 'price'],
     additionalProperties: false,
   }),
   async (req, res) => {
@@ -38,11 +39,44 @@ handler.post(
     const db = await getMongoDb();
 
     const post = await insertPost(db, {
-      content: req.body.content,
+      name: req.body.name,
+      price: req.body.price,
       creatorId: req.user._id,
     });
 
     return res.json({ post });
+  }
+);
+
+handler.put(
+  ...auths,
+  validateBody({
+    type: 'object',
+    properties: {
+      name: ValidateProps.post.name,
+      price: ValidateProps.post.price,
+    },
+    required: ['name', 'price', '_id'],
+    additionalProperties: true,
+  }),
+  async (req, res) => {
+    if (!req.user) {
+      return res.status(401).end();
+    }
+
+    const db = await getMongoDb();
+
+    const oldPost = await findPostById(db, req.body._id);
+
+    const newPost = await updatePost(db, {
+      _id: req.body._id,
+      name: req.body.name,
+      price: req.body.price,
+    });
+
+    sendPriceAlerts(oldPost, newPost);
+
+    return res.json(newPost);
   }
 );
 

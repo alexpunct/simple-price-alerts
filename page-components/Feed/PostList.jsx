@@ -18,11 +18,7 @@ const PostList = () => {
       <Spacer axis="vertical" size={1} />
       <Wrapper>
         {posts.map((post) => (
-          <Link
-            key={post._id}
-            href={`/user/${post.creator.username}/post/${post._id}`}
-            passHref
-          >
+          <Link key={post._id} href={`/product/${post._id}`} passHref>
             <div className={styles.wrap}>
               <Post className={styles.post} post={post} />
             </div>
@@ -30,7 +26,7 @@ const PostList = () => {
         ))}
         <Container justifyContent="center">
           {isReachingEnd ? (
-            <Text color="secondary">No more posts are found</Text>
+            <Text color="secondary">No more products found</Text>
           ) : (
             <Button
               variant="ghost"

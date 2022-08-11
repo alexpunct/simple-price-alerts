@@ -1,7 +1,7 @@
 import { ValidateProps } from '@/api-lib/constants';
 import { findPostById } from '@/api-lib/db';
-import { findComments, insertComment } from '@/api-lib/db/comment';
-import { auths, validateBody } from '@/api-lib/middlewares';
+import { findAlerts, insertAlert } from '@/api-lib/db/alert';
+import { validateBody } from '@/api-lib/middlewares';
 import { getMongoDb } from '@/api-lib/mongodb';
 import { ncOpts } from '@/api-lib/nc';
 import nc from 'next-connect';
@@ -19,34 +19,28 @@ handler.get(async (req, res) => {
       .json({ error: { message: 'Product is not found.' } });
   }
 
-  const comments = await findComments(
+  const alerts = await findAlerts(
     db,
     req.query.postId,
-    req.query.before ? new Date(req.query.before) : undefined,
-    req.query.limit ? parseInt(req.query.limit, 10) : undefined
+    req.query.before ? new Date(req.query.before) : undefined
   );
 
-  return res.json({ comments });
+  return res.json({ alerts });
 });
 
 handler.post(
-  ...auths,
   validateBody({
     type: 'object',
     properties: {
-      content: ValidateProps.comment.content,
+      email: ValidateProps.alert.email,
     },
-    required: ['content'],
+    required: ['email'],
     additionalProperties: false,
   }),
   async (req, res) => {
-    if (!req.user) {
-      return res.status(401).end();
-    }
-
     const db = await getMongoDb();
 
-    const content = req.body.content;
+    const email = req.body.email;
 
     const post = await findPostById(db, req.query.postId);
 
@@ -56,12 +50,11 @@ handler.post(
         .json({ error: { message: 'Product is not found.' } });
     }
 
-    const comment = await insertComment(db, post._id, {
-      creatorId: req.user._id,
-      content,
+    const alert = await insertAlert(db, post._id, {
+      email,
     });
 
-    return res.json({ comment });
+    return res.json({ alert });
   }
 );
 

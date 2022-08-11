@@ -49,13 +49,24 @@ export async function findPosts(db, before, by, limit = 10) {
     .toArray();
 }
 
-export async function insertPost(db, { content, creatorId }) {
+export async function insertPost(db, { name, price, creatorId }) {
   const post = {
-    content,
+    name,
+    price,
     creatorId,
     createdAt: new Date(),
   };
   const { insertedId } = await db.collection('posts').insertOne(post);
   post._id = insertedId;
   return post;
+}
+
+export async function updatePost(db, post) {
+  await db
+    .collection('posts')
+    .updateOne(
+      { _id: new ObjectId(post._id) },
+      { $set: { name: post.name, price: post.price } }
+    );
+  return findPostById(db, post._id);
 }

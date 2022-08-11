@@ -1,4 +1,3 @@
-import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Container, Wrapper } from '@/components/Layout';
@@ -12,8 +11,9 @@ import { useCallback, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import styles from './Poster.module.css';
 
-const PosterInner = ({ user }) => {
-  const contentRef = useRef();
+const PosterInner = () => {
+  const nameRef = useRef();
+  const priceRef = useRef();
   const [isLoading, setIsLoading] = useState(false);
 
   const { mutate } = usePostPages();
@@ -26,10 +26,14 @@ const PosterInner = ({ user }) => {
         await fetcher('/api/posts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: contentRef.current.value }),
+          body: JSON.stringify({
+            name: nameRef.current.value,
+            price: priceRef.current.value,
+          }),
         });
-        toast.success('You have posted successfully');
-        contentRef.current.value = '';
+        toast.success('You have added a new product successfully');
+        nameRef.current.value = '';
+        priceRef.current.value = '';
         // refresh post lists
         mutate();
       } catch (e) {
@@ -44,15 +48,20 @@ const PosterInner = ({ user }) => {
   return (
     <form onSubmit={onSubmit}>
       <Container className={styles.poster}>
-        <Avatar size={40} username={user.username} url={user.profilePicture} />
         <Input
-          ref={contentRef}
+          ref={nameRef}
           className={styles.input}
-          placeholder={`What's on your mind, ${user.name}?`}
-          ariaLabel={`What's on your mind, ${user.name}?`}
+          placeholder={`Product name?`}
+          ariaLabel={`Product name?`}
+        />
+        <Input
+          ref={priceRef}
+          className={styles.input}
+          placeholder={`Product price?`}
+          ariaLabel={`Product price?`}
         />
         <Button type="success" loading={isLoading}>
-          Post
+          Add
         </Button>
       </Container>
     </form>
@@ -66,7 +75,7 @@ const Poster = () => {
   return (
     <Wrapper>
       <div className={styles.root}>
-        <h3 className={styles.heading}>Share your thoughts</h3>
+        <h3 className={styles.heading}>Add new product</h3>
         {loading ? (
           <LoadingDots>Loading</LoadingDots>
         ) : data?.user ? (
@@ -79,7 +88,7 @@ const Poster = () => {
                 sign in
               </TextLink>
             </Link>{' '}
-            to post
+            to add or edit products
           </Text>
         )}
       </div>
